@@ -69,7 +69,7 @@ stty stop undef
 
 # asdf setting
 . $HOME/.asdf/asdf.sh
-. $HOME/.asdf/completions/asdf.bash
+# . $HOME/.asdf/completions/asdf.bash
 
 # User configuration
 export PATH=$HOME/bin:/usr/local/bin:$PATH

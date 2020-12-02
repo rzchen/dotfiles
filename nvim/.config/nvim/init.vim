@@ -25,6 +25,7 @@ Plug 'scrooloose/nerdtree'
 Plug 'bootleq/vim-cycle'
 Plug 'luochen1990/rainbow'
 " Plug 'chaoren/vim-wordmotion'
+Plug 'ryanoasis/vim-devicons'
 
 "================================================
 " Dev Tools
@@ -119,6 +120,7 @@ set relativenumber
 set noswapfile                                               " disable .swp files creation in vim
 set hidden                                                   " allow you to switch between buffers without saving
 " set colorcolumn=80
+set encoding=UTF-8
 
 au BufNewFile,BufRead ssh_config,*/.ssh/config.d/*  setf sshconfig
 
