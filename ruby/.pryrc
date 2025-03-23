@@ -1,6 +1,6 @@
-require 'awesome_print'
+require 'amazing_print'
 
-AwesomePrint.pry!
+AmazingPrint.pry!
 
 Pry.config.commands.alias_command('at', 'whereami')
 Pry.config.commands.alias_command 'ep', 'exit-program'
@@ -20,7 +20,7 @@ if defined? Nerv
       fdi: 'FundDealingItem',
     }
 
-    DEV_PASSWORD = 'foobar'
+    DEV_PASSWORD = 'ie6sucks'
   end
 
   Pry::Commands.create_command 'nerv-resource' do

@@ -79,7 +79,7 @@ export EDITOR='nvim'
 
 # For pair
 pairg() { ssh -t $1 ssh -o 'StrictHostKeyChecking=no' -o 'UserKnownHostsFile=/dev/null' -p $2 -t ${3:-vagrant}@localhost 'tmux attach' }
-pairh() { ssh -S none -o 'ExitOnForwardFailure=yes' -R $2\:dev.localhost:22 -t $1 'watch -en 10 who' }
+pairh() { ssh -S none -o 'ExitOnForwardFailure=yes' -R $2\:localhost:22 -t $1 'watch -en 10 who' }
 
 # Use nvim
 alias e='nvim'
@@ -93,6 +93,7 @@ fi
 
 alias sshc='e ~/.ssh/config'
 alias setup_tags='ctags -R'
+alias sed=gsed
 
 case `uname` in
   Darwin)
@@ -122,7 +123,7 @@ alias gcom='git checkout master'
 alias gRs='git remote show origin'
 alias gRp='git remote show origin | grep patch'
 alias gRf='git remote show origin | grep feature'
-alias gbda='git branch --merged | egrep -v "(^\*|master|nerv_ck|nerv_sg)" | xargs git branch -d'
+alias gbda='git branch --merged | egrep -v "(^\*|master|nerv|perv|nerv_nz|nerv_sg)" | xargs git branch -d'
 alias gbdda='git branch | egrep -v "(^\*|master|nerv_ck|nerv_sg)" | xargs git branch -D'
 alias glg='git log --stat --max-count=10 --pretty=format:"${_git_log_medium_format}"'
 alias gdd='gwd origin/master...'
@@ -136,6 +137,9 @@ alias gwe='e `git diff --name-only --relative`'
 alias gie='e `git diff --cached --name-only --relative`'
 alias gbs='git branch | grep -v spring'
 alias gbt='git checkout nerv_ck'
+alias gra='git for-each-ref --format="%(committerdate) %09 %(authorname) %09 %(refname)" | sort -k5n -k2M -k3n -k4n'
+alias grahan='git for-each-ref --format="%(committerdate) %09 %(authorname) %09 %(refname)" | sort -k5n -k2M -k3n -k4n | grep "remote" | grep "Han"'
+alias dockerup= '. ~/proj/playbooks/docker/tokyo-3/eva_spring/nerv_hq/init.sh'
 
 # JavaScript
 alias nodejs=node
@@ -151,9 +155,10 @@ alias krpu='rpu kill'
 alias pru='rpu'
 
 # Nerv Projects
-alias ck='cd ~/proj/nerv_ck'
+alias ck='cd ~/proj/perv'
 alias hk='cd ~/proj/nerv'
 alias sg='cd ~/proj/nerv_sg'
+alias nz='cd ~/proj/nerv_nz'
 alias agl='cd ~/proj/angel'
 alias ame='cd ~/proj/amoeba'
 alias adam='cd clojure/projects/adam'
@@ -162,12 +167,22 @@ alias asuka='cd clojure/projects/asuka'
 alias cpro='cd clojure/projects'
 alias aoc='cd ~/proj/advent-of-code'
 
-alias ch_pw='rails runner ~/proj/snippets/db/ch_pw.rb'
+# VM Projects
+alias vm='cd ~/proj/vm'
+alias ngxhk='vim /opt/homebrew/etc/nginx/servers/abagile'
+alias ngxck='vim /opt/homebrew/etc/nginx/servers/perv'
+alias ngxsg='vim /opt/homebrew/etc/nginx/servers/nerv_sg'
+alias ngxnz='vim /opt/homebrew/etc/nginx/servers/nerv_nz'
+alias ngxre='nginx -t && brew services restart nginx'
+alias ngxlog='e /opt/homebrew/var/log/nginx/error.log'
+
+alias ch_pw='rails runner ~/proj/vm/scripts/nerv/change_passwords.rb'
 alias e_pw='vim ~/proj/snippets/db/ch_pw.rb'
 alias e_db='vim ~/proj/snippets/db/db_mapping.yml'
 alias dump_db='~/proj/vm/scripts/db_dump.rb && ch_pw'
 alias dump_db_f='~/proj/vm/scripts/db_dump.rb -f && ch_pw'
 alias dump_db2='~/proj/vm/scripts/dump_db.zsh'
+alias db_dump="DEV_PASSWORD='ie6sucks' ~/proj/vm/scripts/db_dump.rb"
 
 # remote dev machine
 # alias ch_pw='rails runner ~/synced/ch_pw.rb'
@@ -219,9 +234,42 @@ alias rat='clj -M:test:runner --watch'
 
 # Asuka
 alias rw='npm run watch'
-alias rwh='NERV_BASE=/nerv npm run watch'
-alias rwc='NERV_BASE=/nerv_ck npm run watch'
-alias rws='NERV_BASE=/nerv_sg npm run watch'
+alias rwh='NERV_BASE=/nerv DEV_DARK_MODE=true npm run watch'
+alias rwc='NERV_BASE=/perv DEV_DARK_MODE=true npm run watch'
+alias rws='NERV_BASE=/nerv_sg DEV_DARK_MODE=true npm run watch'
+alias rwn='NERV_BASE=/nerv_nz DEV_DARK_MODE=true npm run watch'
+
+# ssh
+checkstgbranch() {
+  ssh nerv-uat "for env in hk ck sg ave_ck; do echo \"=== nerv_\$env ===\"; cat nerv_\$env/scm/FETCH_HEAD | grep 'branch ' | awk -F\"'\" '{print \$2}'; done"
+}
+
+nrw() {
+  local folder_path
+  local folder_name
+  local asuka_path
+
+  [[ $PWD =~ '(.*perv|.*nerv_sg|.*nerv|.*nerv_nz)' ]] && folder_path=$match[1]
+  [[ $folder_path =~ '.*(perv|nerv_sg|nerv|nerv_nz)$' ]] && folder_name=$match[1]
+
+  asuka_path="$folder_path/clojure/projects/asuka"
+
+  cd $asuka_path && NERV_BASE=/${=folder_name} npm run watch
+}
+
+ct() {
+  local folder_path
+  local adam_path
+
+  [[ $PWD =~ '(.*perv|.*nerv_sg|.*nerv|.*nerv_nz)' ]] && folder_path=$match[1]
+  adam_path="$folder_path/clojure/projects/adam"
+  if [[ $1 ]]; then
+    cd $adam_path && clj -M:test:runner --focus $1
+  else
+    # cd $adam_path && clj -M:test:runner --watch
+    cd $adam_path && clj -M:test:runner
+  fi
+}
 
 # Tmuxinator
 alias t='tmuxinator'
@@ -238,6 +286,10 @@ alias vimrc='e ~/dotfiles/nvim/.config/nvim/init.vim'
 alias en='e .env'
 alias mc='mailcatcher --http-ip 0.0.0.0 ; rse'
 alias kmc='pkill -f mailcatcher'
+
+# PostgreSQL
+alias rmpid='rm /opt/homebrew/var/postgresql@15/postmaster.pid && brew services restart postgresql@15'
+
 
 # Git pager setting
 export LESS=R

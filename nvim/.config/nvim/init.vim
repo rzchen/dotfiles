@@ -3,7 +3,8 @@ call plug#begin()
 " Enhance Vim
 "================================================
 Plug 'austintaylor/vim-indentobject'
-Plug 'lukas-reineke/indent-blankline.nvim'
+Plug 'nathanaelkane/vim-indent-guides'
+" Plug 'lukas-reineke/indent-blankline.nvim'
 Plug 'tomtom/tcomment_vim'
 Plug 'tpope/vim-endwise'
 " Plug 'RRethy/nvim-treesitter-endwise'
@@ -15,7 +16,7 @@ Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'bootleq/vim-cycle'
 
-Plug 'ssh://git@gitlab.abagile.com:7788/chiao.chuang/vim-abagile.git'
+Plug 'ssh://git@gitlab.abagile.com:7788/abagile/vim-abagile.git'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}  " We recommend updating the parsers on update
 
 " Navigation
@@ -34,8 +35,11 @@ Plug 'thinca/vim-quickrun', {'commit': 'c980977f1d77b3285937b9d7b5baa964fc9ed7f5
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'christoomey/vim-tmux-runner'
 Plug 'majutsushi/tagbar'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'ray-x/web-tools.nvim'
 
 " Plug 'janko-m/vim-test'
+Plug 'mistricky/codesnap.nvim', { 'do': 'make' }
 
 "================================================
 " Autocomplete
@@ -46,7 +50,7 @@ Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
 " Javascript/HTML
 "================================================
 Plug 'kchmck/vim-coffee-script'
-" Plug 'mattn/emmet-vim'
+Plug 'mattn/emmet-vim'
 Plug 'pangloss/vim-javascript'
 Plug 'mxw/vim-jsx'
 Plug 'slim-template/vim-slim'
@@ -62,11 +66,12 @@ Plug 'tpope/vim-fugitive'
 "================================================
 " Theme
 "================================================
-Plug 'itchyny/lightline.vim'
 Plug 'mengelbrecht/lightline-bufferline'
 Plug 'ryanoasis/vim-devicons'
 Plug 'Mofiqul/vscode.nvim', { 'branch': 'main' }
 Plug 'joshdick/onedark.vim', { 'branch': 'main' }
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'itchyny/lightline.vim'
 
 "================================================
 " Ruby/Rails
@@ -111,6 +116,9 @@ set relativenumber
 set noswapfile                                               " disable .swp files creation in vim
 set hidden                                                   " allow you to switch between buffers without saving
 set splitright
+set nofoldenable
+set encoding=UTF-8
+" set clipboard=unnamed
 
 " set colorcolumn=80
 "
@@ -269,7 +277,8 @@ let g:sexp_enable_insert_mode_mappings = 0
 " Shortcut
 "================================================
 nnoremap <leader>dd :NERDTreeToggle<CR>
-nnoremap <leader>df :NERDTreeFind<CR>
+" nnoremap <leader>df :NERDTreeFind<CR>
+nnoremap <leader>nf :NERDTreeFind<CR>
 nnoremap <leader>] :TagbarToggle<CR>
 nnoremap <leader><space> :call abagile#whitespace#strip_trailing()<CR>
 noremap <silent> <leader>V :source ~/.config/nvim/init.vim<CR>:filetype detect<CR>:exe ":echo 'vimrc reloaded'"<CR>
@@ -322,8 +331,8 @@ nnoremap <Leader>y "+y
 " window
 nmap <leader>w <C-w>
 nmap <leader>wf <C-w>f<C-w>H
-" nnoremap <Leader>+ :vertical resize +10<CR>
-" nnoremap <Leader>- :vertical resize -10<CR>
+nnoremap <Leader>= :vertical resize +10<CR>
+nnoremap <Leader>- :vertical resize -10<CR>
 
 " buffer switch
 nnoremap <silent> <tab> :bn<CR>
@@ -376,7 +385,8 @@ nmap <leader>hl :vsp<cr><C-^><cr>
 
 " abagile-test
 nnoremap <silent> <Leader>tl :call abagile#rails#test_tmux('h')
-nnoremap <silent> <Leader>tf :call abagile#rails#test_tmux('h', 1)
+" nnoremap <silent> <Leader>tf :call abagile#rails#test_tmux('h', 1)
+nnoremap <silent> <Leader>tf :call abagile#rails#test_tmux('h')
 
 " start interactive EasyAlign in visual mode
 vmap <Enter> <Plug>(EasyAlign)
@@ -384,7 +394,7 @@ vmap <Enter> <Plug>(EasyAlign)
 nmap <leader>l <Plug>(EasyAlign)
 
 " Vim Tmux Navigator
-let g:tmux_navigator_disable_when_zoomed = 1
+" let g:tmux_navigator_disable_when_zoomed = 1
 
 " Vim Tmux Runner
 nnoremap <leader>ar :VtrAttachToPane<cr>
@@ -449,7 +459,7 @@ hi SpellBad ctermbg=20
 
 lua <<EOF
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = "maintained", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
+  ensure_installed = "all", -- one of "all", "maintained" (parsers with maintainers), or a list of languages
   sync_install = false, -- install languages synchronously (only applied to `ensure_installed`)
   ignore_install = { "javascript" }, -- List of parsers to ignore installing
   highlight = {
@@ -465,10 +475,10 @@ require'nvim-treesitter.configs'.setup {
 
 vim.opt.list = true
 
-require("indent_blankline").setup {
-    show_current_context = true,
-    show_current_context_start = true,
-}
+-- require("indent_blankline").setup {
+--    show_current_context = true,
+--    show_current_context_start = true,
+--}
 EOF
 
 function! s:case_tx_subs_camel(w) "{{{
@@ -530,5 +540,13 @@ endfunction
 let b:case_tx_cases = ['snake', 'kekab', 'camel']
 nnoremap <silent> <LocalLeader>x :call WordTransform()<CR>
 
+
+nnoremap <localleader>cs :call abagile#cljs#setup_cljs_plugin_connection()<CR>
+
+" for vim-indent-guides
+let g:indent_guides_enable_on_vim_startup = 1
+colorscheme dracula
+
 " keep set secure on the last line
 set secure " safer working with script files in the current directory
+hi Search cterm=underline
